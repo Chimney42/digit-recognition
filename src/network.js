@@ -24,6 +24,16 @@ class Network {
         this.session.dispose();
     }
 
+    getActivationFunction(functionName) {
+        let fn;
+        switch(functionName) {
+            case 'sigmoid':
+                fn = this.graph.sigmoid;
+                break;
+        }
+        return fn;
+    }
+
     train(inputData, targetData, batchSize, batchCount) {
         const targetTensor = this.graph.placeholder('target', [targetData[0].size]);
         const costTensor = this.graph.meanSquaredCost(targetTensor, this.lastLayer);
