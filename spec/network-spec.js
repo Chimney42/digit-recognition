@@ -22,4 +22,21 @@ describe('A Neural Network',() => {
         network.addFullyConnectedLayer(size, activationFunction);
         expect(network.graph.layers.dense).toHaveBeenCalledWith(jasmine.any(String), lastLayer, size, activationFunction, true);
     });
+
+    it('should train network', () => {
+        const labelCount = 10;
+        const inputData = [{size: 5}];
+        const targetData = [{size: labelCount}];
+        network.init(labelCount);
+        network.startSession();
+        const shuffleProvider = {
+            getInputProviders: () => [{}, {}]
+        };
+        spyOn(network.deeplearn, 'InCPUMemoryShuffledInputProviderBuilder').and.returnValue(shuffleProvider);
+        spyOn(network.session, 'train');
+        network.train(inputData, targetData, 6, 1);
+
+        expect(network.deeplearn.InCPUMemoryShuffledInputProviderBuilder).toHaveBeenCalledWith([inputData, targetData]);
+        expect(network.session.train).toHaveBeenCalled();
+    })
 });
