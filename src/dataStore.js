@@ -37,9 +37,10 @@ class DataStore {
                 this.fs.createReadStream(this.trainingDataPath)
                     .pipe(parse({delimiter: ','}))
                     .on('data', (csvrow) => {
-                        const target = csvrow.shift();
+                        let target = csvrow.shift();
                         if ('label' != target) {
-                            this.trainingData.targetData.push(this.createVectorRepresentation(10, parseInt(target)));
+                            target = this.createVectorRepresentation(10, parseInt(target));
+                            this.trainingData.targetData.push(target);
 
                             const inputRow = deeplearn.Array1D.new(csvrow);
                             this.trainingData.inputData.push(inputRow);

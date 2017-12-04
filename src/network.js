@@ -28,7 +28,7 @@ class Network {
         let fn;
         switch(functionName) {
             case 'sigmoid':
-                fn = this.graph.sigmoid;
+                fn = this.graph.sigmoid.bind(this.graph);
                 break;
         }
         return fn;
