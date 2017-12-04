@@ -30,16 +30,31 @@ describe('The dataRetriever', () => {
         store.parse = parseMock;
     });
 
-    it('should load training data', (done) => {
-        spyOn(readStreamMock, 'pipe').and.callThrough();
-        spyOn(readStreamMock, 'on').and.callThrough();
+    describe('loading data', () => {
+        it('should load from file', (done) => {
+            spyOn(fsMock, 'createReadStream').and.callThrough();
 
-        store.loadTrainingData()
-            .then(data => {
-                expect(data).toBe(trainingData);
-                done();
-            })
-            .catch(console.error)
+            store.loadTrainingData()
+                .then(data => {
+                    expect(fsMock.createReadStream).toHaveBeenCalled();
+                    expect(data).toBe(trainingData);
+                    done();
+                })
+                .catch(console.error)
+        });
 
+        it('should not load from file if already initiated', (done) => {
+            store.trainingData = trainingData;
+            store.trainingData.init = true;
+            spyOn(fsMock, 'createReadStream');
+
+            store.loadTrainingData()
+                .then(data => {
+                    expect(fsMock.createReadStream).not.toHaveBeenCalled();
+                    expect(data).toBe(trainingData);
+                    done();
+                })
+                .catch(console.error)
+        });
     })
 });
