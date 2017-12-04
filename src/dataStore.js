@@ -1,14 +1,21 @@
 const deeplearn = require('deeplearn');
 const parse = require('csv-parse');
+
 class DataStore {
     constructor() {
         this.fs = require('fs');
         this.trainingDataPath = '../data/train.csv';
+        this.testDataPath = '../data/test.csv';
 
         this.trainingData = {
             init: false,
             inputData : [],
             targetData : []
+        };
+
+        this.testData = {
+            init: false,
+            inputData : []
         };
     }
 
@@ -46,6 +53,26 @@ class DataStore {
                         this.trainingData.init = true;
                         resolve(this.trainingData);
                     })
+            }
+        });
+    }
+
+    loadTestData() {
+        return new Promise((resolve, reject) => {
+            if (this.testData.init) {
+                resolve(this.testData);
+            } else {
+                this.fs.createReadStream(this.testDataPath)
+                    .pipe(parse({delimiter: ','}))
+                    .on('data', (csvrow) => {
+                        if ('pixel0' != csvrow[0]) {
+                            this.testData.push(deeplearn.Array1D.new(csvrow));
+                        }
+                    })
+                    .on('end', () => {
+                        this.testData.init = true;
+                        resolve(this.testData);
+                    });
             }
         });
     }

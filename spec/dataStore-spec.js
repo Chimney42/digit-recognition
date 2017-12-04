@@ -76,6 +76,55 @@ describe('The dataStore', () => {
                 })
         })
     });
+
+    describe('loading test data', () => {
+        it('should load from file', (done) => {
+            spyOn(fsMock, 'createReadStream').and.callThrough();
+            spyOn(readStreamMock, 'on').and.callFake((type, cb) => {
+                if ('data' === type) store.testData = testData;
+                if ('end' === type) cb();
+                return readStreamMock;
+            });
+            store.loadTestData()
+                .then(data => {
+                    expect(fsMock.createReadStream).toHaveBeenCalled();
+                    expect(data).toBe(testData);
+                    done();
+                })
+                .catch(console.error)
+        });
+
+        it('should not load from file if already initiated', (done) => {
+            store.testData = testData;
+            store.testData.init = true;
+            spyOn(fsMock, 'createReadStream');
+
+            store.loadTestData()
+                .then(data => {
+                    expect(fsMock.createReadStream).not.toHaveBeenCalled();
+                    expect(data).toBe(testData);
+                    done();
+                })
+                .catch(console.error)
+        });
+
+        it('should transform each row', (done) => {
+            const input = [1, 2, 3];
+
+            spyOn(readStreamMock, 'on').and.callFake((type, cb) => {
+                if ('data' === type) cb(input);
+                if ('end' === type) cb();
+                return readStreamMock;
+            });
+
+            store.loadTrainingData()
+                .then(data => {
+                    expect(Array.from(data.inputData[0].getData().values)).toEqual(input);
+                        done();
+                })
+        })
+    });
+
     it('should do one-hot-encoding on labels', (done) => {
         const label = 4;
         const vector = store.createVectorRepresentation(10, label);
