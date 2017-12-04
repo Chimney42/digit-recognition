@@ -48,6 +48,18 @@ class Network {
             }
         }
     }
+
+    predict(inputRow) {
+        const testFeedEntries = [{tensor: this.inputTensor, data: inputRow}];
+        return new Promise((resolve, reject) => {
+            this.session.eval(this.lastLayer, testFeedEntries)
+                .data()
+                .then(data => {
+                    const label = data.indexOf(data.reduce(( acc, cur ) => Math.max( acc, cur )));
+                    resolve(label);
+                })
+        });
+    }
 }
 
 module.exports = Network;

@@ -38,5 +38,21 @@ describe('A Neural Network',() => {
 
         expect(network.deeplearn.InCPUMemoryShuffledInputProviderBuilder).toHaveBeenCalledWith([inputData, targetData]);
         expect(network.session.train).toHaveBeenCalled();
-    })
+    });
+
+    it('should make prediction', (done) => {
+        const inputRow = {};
+        const expLabel = 2;
+        const data = [0, 0.9, 1, 0];
+        const evalMock = {
+            data: () => Promise.resolve(data)
+        };
+        network.startSession();
+        spyOn(network.session, 'eval').and.returnValue(evalMock);
+        network.predict(inputRow)
+            .then(label => {
+                expect(label).toBe(expLabel);
+                done();
+            })
+    });
 });
