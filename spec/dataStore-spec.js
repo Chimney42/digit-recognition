@@ -60,8 +60,8 @@ describe('The dataStore', () => {
 
         it('should transform each row', (done) => {
             const target = 0;
-            const input = [1, 2, 3];
-
+            const input = [0, 0, 255];
+            const expected = [0, 0, 1];
             spyOn(readStreamMock, 'on').and.callFake((type, cb) => {
                 if ('data' === type) cb([target].concat(input));
                 if ('end' === type) cb();
@@ -70,7 +70,7 @@ describe('The dataStore', () => {
 
             store.loadTrainingData()
                 .then(data => {
-                    expect(Array.from(data.inputData[0].getData().values)).toEqual(input);
+                    expect(Array.from(data.inputData[0].getData().values)).toEqual(expected);
                     expect(data.targetData[0]).toEqual(store.createVectorRepresentation(10, target));
                     done();
                 })
@@ -109,17 +109,17 @@ describe('The dataStore', () => {
         });
 
         it('should transform each row', (done) => {
-            const input = [1, 2, 3];
-
+            const input = [0, 0, 255];
+            const expected = [0, 0, 1];
             spyOn(readStreamMock, 'on').and.callFake((type, cb) => {
                 if ('data' === type) cb(input);
                 if ('end' === type) cb();
                 return readStreamMock;
             });
 
-            store.loadTrainingData()
+            store.loadTestData()
                 .then(data => {
-                    expect(Array.from(data.inputData[0].getData().values)).toEqual(input);
+                    expect(Array.from(data.inputData[0].getData().values)).toEqual(expected);
                         done();
                 })
         })
@@ -138,5 +138,5 @@ describe('The dataStore', () => {
                 expect(data[random]).toBeFalsy();
                 done();
             })
-    })
+    });
 });
