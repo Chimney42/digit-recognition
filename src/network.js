@@ -34,7 +34,7 @@ class Network {
         return fn;
     }
 
-    train(inputData, targetData, batchSize, batchCount) {
+    train(inputData, targetData, batchSize, batchCount, learningRate) {
         const targetTensor = this.graph.placeholder('target', [targetData[0].size]);
         const costTensor = this.graph.meanSquaredCost(targetTensor, this.lastLayer);
 
@@ -51,7 +51,7 @@ class Network {
         console.log('start training');
 
         for (let i = 0; i < batchCount; i++) {
-            const optimizer = new this.deeplearn.SGDOptimizer();
+            const optimizer = new this.deeplearn.SGDOptimizer(learningRate);
             this.session.train(costTensor, feedEntries, batchSize, optimizer, this.deeplearn.CostReduction.MEAN);
 
             if (i % 10 == 0) {

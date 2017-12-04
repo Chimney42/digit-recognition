@@ -34,7 +34,7 @@ describe('A Neural Network',() => {
         };
         spyOn(network.deeplearn, 'InCPUMemoryShuffledInputProviderBuilder').and.returnValue(shuffleProvider);
         spyOn(network.session, 'train');
-        network.train(inputData, targetData, 6, 1);
+        network.train(inputData, targetData, 6, 1, 0.0002);
 
         expect(network.deeplearn.InCPUMemoryShuffledInputProviderBuilder).toHaveBeenCalledWith([inputData, targetData]);
         expect(network.session.train).toHaveBeenCalled();
