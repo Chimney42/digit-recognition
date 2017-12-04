@@ -7,8 +7,9 @@ class NetworkFactory {
         const network = this.newNetwork();
         network.init(config.featureCount);
         const activationFunction = network.getActivationFunction(config.activationFunction);
-        config.hiddenLayerSizes.forEach(layerSize => {
-            network.addFullyConnectedLayer(layerSize, activationFunction);
+        config.layers.forEach(layerConfig => {
+            const addLayer = network.getLayerCreation(layerConfig.type);
+            addLayer(layerConfig.size, activationFunction)
         });
         network.addFullyConnectedLayer(config.labelCount, activationFunction);
         return network;

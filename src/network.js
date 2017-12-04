@@ -10,6 +10,17 @@ class Network {
         this.lastLayer = this.inputTensor;
     }
 
+    getLayerCreation(type) {
+        let fn;
+        switch(type) {
+            case 'fully_connected':
+                fn = this.addFullyConnectedLayer.bind(this);
+                break;
+        }
+
+        return fn;
+    }
+
     addFullyConnectedLayer(size, activationFunction, useBias = true) {
         const newLayer = this.graph.layers.dense('fully_connected_' + this.layerCount, this.lastLayer, size, activationFunction, useBias);
         this.layerCount++;
@@ -36,7 +47,8 @@ class Network {
 
     train(inputData, targetData, batchSize, batchCount, learningRate) {
         const targetTensor = this.graph.placeholder('target', [targetData[0].size]);
-        const costTensor = this.graph.meanSquaredCost(targetTensor, this.lastLayer);
+        const costTensor = this.graph.softmaxCrossEntropyCost(this.lastLayer, targetTensor);
+        this.accuracyTensor = this.graph.argmaxEquals(this.lastLayer, targetTensor);
 
         const shuffledInputProviderBuilder = new this.deeplearn.InCPUMemoryShuffledInputProviderBuilder([inputData, targetData]);
         const [inputProvider, targetProvider] = shuffledInputProviderBuilder.getInputProviders();
@@ -51,7 +63,7 @@ class Network {
         console.log('start training');
 
         for (let i = 0; i < batchCount; i++) {
-            const optimizer = new this.deeplearn.SGDOptimizer(learningRate);
+            const optimizer = new this.deeplearn.MomentumOptimizer(learningRate, 0.1);
             this.session.train(costTensor, feedEntries, batchSize, optimizer, this.deeplearn.CostReduction.MEAN);
 
             if (i % 10 == 0) {
