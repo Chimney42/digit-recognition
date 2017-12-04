@@ -1,9 +1,12 @@
 const DataStore = require('../src/dataStore');
 
-describe('The dataRetriever', () => {
+describe('The dataStore', () => {
     const trainingData = {
         inputData : [],
         targetData : []
+    };
+    const testData = {
+        inputData : []
     };
     let readStreamMock;
     let fsMock;
@@ -13,27 +16,25 @@ describe('The dataRetriever', () => {
     beforeEach(() => {
         readStreamMock = {
             pipe: () => readStreamMock,
-            on: (type, cb) => {
-                if ('data' === type) store.trainingData = trainingData;
-                if ('end' === type) cb();
-                return readStreamMock;
-            }
+            on: () => readStreamMock
         };
         fsMock = {
             createReadStream : () => readStreamMock
         };
-
-        parseMock = () => {};
 
         store = new DataStore();
         store.fs = fsMock;
         store.parse = parseMock;
     });
 
-    describe('loading data', () => {
+    describe('loading training data', () => {
         it('should load from file', (done) => {
             spyOn(fsMock, 'createReadStream').and.callThrough();
-
+            spyOn(readStreamMock, 'on').and.callFake((type, cb) => {
+                if ('data' === type) store.trainingData = trainingData;
+                if ('end' === type) cb();
+                return readStreamMock;
+            });
             store.loadTrainingData()
                 .then(data => {
                     expect(fsMock.createReadStream).toHaveBeenCalled();

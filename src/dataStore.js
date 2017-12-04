@@ -1,7 +1,7 @@
+const parse = require('csv-parse');
 class DataStore {
     constructor() {
         this.fs = require('fs');
-        this.parse = require('csv-parse');
         this.trainingDataPath = '../data/train.csv';
 
         this.trainingData = {
@@ -17,7 +17,7 @@ class DataStore {
                 resolve(this.trainingData);
             } else {
                 this.fs.createReadStream(this.trainingDataPath)
-                    .pipe(this.parse({delimiter: ','}))
+                    .pipe(parse({delimiter: ','}))
                     .on('data', (csvrow) => {
 
                     })
