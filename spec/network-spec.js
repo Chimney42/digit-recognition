@@ -18,8 +18,8 @@ describe('A Neural Network',() => {
         const lastLayer = network.lastLayer;
         const size = 8;
         const activationFunction = (x) => x;
-
+        spyOn(network.graph.layers, 'dense');
         network.addFullyConnectedLayer(size, activationFunction);
-        expect(network.lastLayer).not.toBe(lastLayer);
+        expect(network.graph.layers.dense).toHaveBeenCalledWith(jasmine.any(String), lastLayer, size, activationFunction, true);
     });
 });
