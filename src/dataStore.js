@@ -66,7 +66,10 @@ class DataStore {
                     .pipe(parse({delimiter: ','}))
                     .on('data', (csvrow) => {
                         if ('pixel0' != csvrow[0]) {
-                            this.testData.push(deeplearn.Array1D.new(csvrow));
+                            this.testData.inputData.push(deeplearn.Array1D.new(csvrow));
+                            if (this.testData.inputData.length % 1000 === 0) {
+                                console.log(`storing datapoint ${this.testData.inputData.length} for testing`)
+                            }
                         }
                     })
                     .on('end', () => {
