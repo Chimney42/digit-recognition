@@ -51,7 +51,8 @@ class Network {
         console.log('start training');
 
         for (let i = 0; i < batchCount; i++) {
-            this.session.train(costTensor, feedEntries, batchSize, this.deeplearn.SGDOptimizer, this.deeplearn.CostReduction.MEAN);
+            const optimizer = new this.deeplearn.SGDOptimizer();
+            this.session.train(costTensor, feedEntries, batchSize, optimizer, this.deeplearn.CostReduction.MEAN);
 
             if (i % 10 == 0) {
                 console.log(`training iteration ${i} of ${batchCount}`);
