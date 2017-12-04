@@ -6,6 +6,11 @@ class Network {
         this.lastLayer;
     }
 
+    addFullyConnectedLayer(size, activationFunction, useBias = true) {
+        const newLayer = this.graph.layers.dense('fully_connected_' + this.layerCount, this.lastLayer, size, activationFunction, useBias);
+        this.layerCount++;
+        this.lastLayer = newLayer;
+    }
 }
 
 module.exports = Network;
