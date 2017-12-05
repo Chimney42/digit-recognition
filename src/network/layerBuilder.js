@@ -9,8 +9,8 @@ class LayerBuilder {
         return this.graph.layers.dense('fcl', inputTensor, size, activationFunction, useBias)
     }
 
-    createReLULayer() {
-        this.lastLayer = this.graph.relu(this.lastLayer);
+    createReLULayer(inputTensor) {
+        return this.graph.relu(inputTensor);
     }
 }
 

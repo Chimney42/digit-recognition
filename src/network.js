@@ -17,6 +17,9 @@ class Network {
             case 'fully_connected':
                 this.lastLayer = this.layerBuilder.createFullyConnectedLayer(this.lastLayer, config.size, this.getActivationFunction(config.activation));
                 break;
+            case 'reLU':
+                this.lastLayer = this.layerBuilder.createReLULayer(this.lastLayer);
+                break;
         }
     }
 
@@ -41,7 +44,7 @@ class Network {
     train(inputData, targetData, batchSize, batchCount, learningRate) {
         const targetTensor = this.graph.placeholder('target', [targetData[0].size]);
         const costTensor = this.graph.softmaxCrossEntropyCost(this.lastLayer, targetTensor);
-        this.accuracyTensor = this.graph.argmaxEquals(this.lastLayer, targetTensor);
+        const accuracyTensor = this.graph.argmaxEquals(this.lastLayer, targetTensor);
 
         const shuffledInputProviderBuilder = new this.deeplearn.InCPUMemoryShuffledInputProviderBuilder([inputData, targetData]);
         const [inputProvider, targetProvider] = shuffledInputProviderBuilder.getInputProviders();
