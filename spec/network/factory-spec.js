@@ -1,4 +1,4 @@
-const NetworkFactory = require('../src/networkFactory');
+const NetworkFactory = require('../../src/network/factory');
 
 describe('The network factory', () => {
     it('should create a network from config object', () => {

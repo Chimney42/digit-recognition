@@ -5,7 +5,7 @@ const trainDataPath = 'data/train.csv';
 const fs = require('fs');
 const deeplearn = require('deeplearn');
 const Storage = require('./src/dataStore');
-const NetworkFactory = require('./src/networkFactory');
+const NetworkFactory = require('./src/network/factory');
 
 const config = {
     featureCount: 784,

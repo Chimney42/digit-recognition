@@ -1,4 +1,4 @@
-const Network = require('./network');
+const Network = require('./../network');
 class NetworkFactory {
     newNetwork() {
         return new Network();
