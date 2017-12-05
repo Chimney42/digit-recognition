@@ -6,12 +6,14 @@ class NetworkFactory {
     createNetwork(config) {
         const network = this.newNetwork();
         network.init(config.featureCount);
-        const activationFunction = network.getActivationFunction(config.activationFunction);
         config.layers.forEach(layerConfig => {
-            const addLayer = network.getLayerCreation(layerConfig.type);
-            addLayer(layerConfig.size, activationFunction)
+            network.addLayer(layerConfig)
         });
-        network.addFullyConnectedLayer(config.labelCount, activationFunction);
+        network.addLayer({
+            type: 'fully_connected',
+            activation: 'sigmoid',
+            size: config.labelCount
+        });
         return network;
     }
 }

@@ -13,16 +13,6 @@ describe('A Neural Network',() => {
         expect(network.lastLayer).toBeDefined();
     });
 
-    it('should add a fully connected layer to graph', () => {
-        network.init(4);
-        const lastLayer = network.lastLayer;
-        const size = 8;
-        const activationFunction = (x) => x;
-        spyOn(network.graph.layers, 'dense');
-        network.addFullyConnectedLayer(size, activationFunction);
-        expect(network.graph.layers.dense).toHaveBeenCalledWith(jasmine.any(String), lastLayer, size, activationFunction, true);
-    });
-
     it('should train network', () => {
         const labelCount = 10;
         const inputData = [{size: 5}];

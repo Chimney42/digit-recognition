@@ -7,16 +7,15 @@ describe('The network factory', () => {
             featureCount: 5,
             layers: [{
                     type: 'fully_connected',
-                    size: 10
+                    activation : 'functionName',
+                    size: 5
                 }],
-            labelCount: 10,
-            activationFunction : 'functionName'
+            labelCount: 10
         };
         const networkMock = {
             init: jasmine.createSpy('init'),
             getActivationFunction: jasmine.createSpy('getActivationFunction').and.returnValue(() => {}),
-            addFullyConnectedLayer: jasmine.createSpy('addFullyConnectedLayer'),
-            getLayerCreation: () => networkMock.addFullyConnectedLayer
+            addLayer: jasmine.createSpy('addLayer')
         };
         spyOn(factory, 'newNetwork').and.returnValue(networkMock);
 
@@ -24,10 +23,13 @@ describe('The network factory', () => {
 
         expect(network).toBe(networkMock);
         expect(network.init).toHaveBeenCalledWith(config.featureCount);
-        expect(network.getActivationFunction).toHaveBeenCalledWith(config.activationFunction);
-        expect(network.addFullyConnectedLayer.calls.allArgs()).toEqual([
-            [10, jasmine.any(Function)],
-            [config.labelCount, jasmine.any(Function)]
+        expect(network.addLayer.calls.allArgs()).toEqual([
+            [config.layers[0]],
+            [{
+                type: 'fully_connected',
+                activation: 'sigmoid',
+                size: config.labelCount
+            }]
         ])
     })
 });

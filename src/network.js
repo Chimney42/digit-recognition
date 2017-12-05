@@ -1,8 +1,10 @@
+const LayerBuilder = require('./network/layerBuilder');
 class Network {
     constructor() {
         this.deeplearn = require('deeplearn');
         this.graph = new this.deeplearn.Graph();
         this.layerCount = 0;
+        this.layerBuilder = new LayerBuilder();
     }
 
     init(inputLength) {
@@ -10,21 +12,12 @@ class Network {
         this.lastLayer = this.inputTensor;
     }
 
-    getLayerCreation(type) {
-        let fn;
-        switch(type) {
+    addLayer(config) {
+        switch (config.type) {
             case 'fully_connected':
-                fn = this.addFullyConnectedLayer.bind(this);
+                this.lastLayer = this.layerBuilder.createFullyConnectedLayer(this.lastLayer, config.size, this.getActivationFunction(config.activation));
                 break;
         }
-
-        return fn;
-    }
-
-    addFullyConnectedLayer(size, activationFunction, useBias = true) {
-        const newLayer = this.graph.layers.dense('fully_connected_' + this.layerCount, this.lastLayer, size, activationFunction, useBias);
-        this.layerCount++;
-        this.lastLayer = newLayer;
     }
 
     startSession() {
