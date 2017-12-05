@@ -1,7 +1,7 @@
 class LayerBuilder {
     constructor() {
         const deeplearn = require('deeplearn');
-        this.graph = deeplearn;
+        this.graph = new deeplearn.Graph();
     }
 
 
