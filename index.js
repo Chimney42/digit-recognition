@@ -9,15 +9,16 @@ const NetworkFactory = require('./src/network/factory');
 
 const config = {
     featureCount: 784,
-    hiddenLayerSizes: [2, 4],
-    layers: [
-
-    ],
-    labelCount: 10,
-    activationFunction : 'sigmoid'
+    layers: [],
+    predictionLayer: {
+        type: 'fully_connected',
+        activation: 'sigmoid',
+        size: 10
+    },
+    labelCount: 10
 };
-const batchSize = 100;
-const batchCount = 500;
+const batchSize = 64;
+const batchCount = 64;
 
 const validationIndices = [1, 0, 16, 7, 32, 19, 21, 6, 20, 31];
 
@@ -40,16 +41,17 @@ storage.loadTrainingData()
         return storage.loadTestData()
     })
     .then(testData => {
-        let testIndex = 1;
+        let testIndex = 0;
 
         testData.inputData.forEach(inputRow => {
-            console.log(`training dataset ${testIndex}`);
+            testIndex++;
+            const scopedIndex = testIndex;
+            console.log(`predicting dataset ${testIndex}`);
             network.predict(inputRow)
                 .then(label => {
-                    const string = `${testIndex},${label}`;
+                    const string = `${scopedIndex},${label}`;
                     fs.appendFileSync(submissionDataPath, string + '\n');
                 });
-            testIndex++;
         })
     })
 .catch(console.error);
