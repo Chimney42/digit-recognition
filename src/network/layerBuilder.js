@@ -5,7 +5,7 @@ class LayerBuilder {
     }
 
     createFullyConnectedLayer(inputTensor, size, activationFunction, index) {
-        return this.graph.layers.dense(`fcl-${index}`, inputTensor, size, activationFunction, true)
+        return this.graph.layers.dense('fcl-'+index, inputTensor, size, activationFunction, true)
     }
 
     createReLULayer(inputTensor) {
