@@ -1,44 +1,38 @@
 const DataStore = require('../src/dataStore');
 
 describe('The dataStore', () => {
+    const trainingDataPath = 'data/train.csv';
     const trainingData = {
         inputData : [],
         targetData : []
     };
+    const testDataPath = 'data/test.csv';
     const testData = {
         inputData : []
     };
-    let readStreamMock;
-    let fsMock;
-    let parseMock;
+    let requestMock;
+    let fetchMock;
     let store;
 
     beforeEach(() => {
-        readStreamMock = {
-            pipe: () => readStreamMock,
-            on: () => readStreamMock
-        };
-        fsMock = {
-            createReadStream : () => readStreamMock
-        };
-
-        store = new DataStore();
-        store.fs = fsMock;
-        store.parse = parseMock;
+        requestMock = class ReqMock {};
+        fetchMock = jasmine.createSpy('fetch');
+        store = new DataStore(requestMock, fetchMock);
     });
 
     describe('loading training data', () => {
         it('should load from file', (done) => {
-            spyOn(fsMock, 'createReadStream').and.callThrough();
-            spyOn(readStreamMock, 'on').and.callFake((type, cb) => {
-                if ('data' === type) store.trainingData = trainingData;
-                if ('end' === type) cb();
-                return readStreamMock;
-            });
+            spyOn(store, 'transformTrainingData');
+            const responsePayload = 'data';
+            const response = { text: () => Promise.resolve(responsePayload)};
+            fetchMock.and.returnValue(Promise.resolve(response));
+
             store.loadTrainingData()
                 .then(data => {
-                    expect(fsMock.createReadStream).toHaveBeenCalled();
-                    expect(data).toBe(trainingData);
+                    expect(fetchMock).toHaveBeenCalled();
+                    expect(store.transformTrainingData).toHaveBeenCalledWith(responsePayload);
+                    trainingData.init = true;
+                    expect(data).toEqual(trainingData);
                     done();
                 })
                 .catch(console.error)
@@ -47,48 +41,45 @@ describe('The dataStore', () => {
         it('should not load from file if already initiated', (done) => {
             store.trainingData = trainingData;
             store.trainingData.init = true;
-            spyOn(fsMock, 'createReadStream');
 
             store.loadTrainingData()
                 .then(data => {
-                    expect(fsMock.createReadStream).not.toHaveBeenCalled();
+                    expect(fetchMock).not.toHaveBeenCalled();
                     expect(data).toBe(trainingData);
                     done();
                 })
                 .catch(console.error)
         });
 
-        it('should transform each row', (done) => {
+
+        it('should transform each row', () => {
+            const header = 'some header';
             const target = 0;
             const input = [0, 0, 255];
             const expected = [0, 0, 1];
-            spyOn(readStreamMock, 'on').and.callFake((type, cb) => {
-                if ('data' === type) cb([target].concat(input));
-                if ('end' === type) cb();
-                return readStreamMock;
-            });
 
-            store.loadTrainingData()
-                .then(data => {
-                    expect(Array.from(data.inputData[0].getData().values)).toEqual(expected);
-                    expect(data.targetData[0]).toEqual(store.createVectorRepresentation(10, target));
-                    done();
-                })
+            const row = [target].concat(input).join(',');
+            const dataString = [header, row].join('\n');
+
+            store.transformTrainingData(dataString);
+            expect(Array.from(store.trainingData.inputData[0].getData().values)).toEqual(expected);
+            expect(store.trainingData.targetData[0]).toEqual(store.createVectorRepresentation(10, target));
         })
     });
 
     describe('loading test data', () => {
         it('should load from file', (done) => {
-            spyOn(fsMock, 'createReadStream').and.callThrough();
-            spyOn(readStreamMock, 'on').and.callFake((type, cb) => {
-                if ('data' === type) store.testData = testData;
-                if ('end' === type) cb();
-                return readStreamMock;
-            });
+            spyOn(store, 'transformTestData');
+            const responsePayload = 'data';
+            const response = { text: () => Promise.resolve(responsePayload)};
+            fetchMock.and.returnValue(Promise.resolve(response));
+
             store.loadTestData()
                 .then(data => {
-                    expect(fsMock.createReadStream).toHaveBeenCalled();
-                    expect(data).toBe(testData);
+                    expect(fetchMock).toHaveBeenCalled();
+                    expect(store.transformTestData).toHaveBeenCalledWith(responsePayload);
+                    testData.init = true;
+                    expect(data).toEqual(testData);
                     done();
                 })
                 .catch(console.error)
@@ -97,31 +88,26 @@ describe('The dataStore', () => {
         it('should not load from file if already initiated', (done) => {
             store.testData = testData;
             store.testData.init = true;
-            spyOn(fsMock, 'createReadStream');
 
             store.loadTestData()
                 .then(data => {
-                    expect(fsMock.createReadStream).not.toHaveBeenCalled();
+                    expect(fetchMock).not.toHaveBeenCalled();
                     expect(data).toBe(testData);
                     done();
                 })
                 .catch(console.error)
         });
 
-        it('should transform each row', (done) => {
+        it('should transform each row', () => {
+            const header = 'some header';
             const input = [0, 0, 255];
             const expected = [0, 0, 1];
-            spyOn(readStreamMock, 'on').and.callFake((type, cb) => {
-                if ('data' === type) cb(input);
-                if ('end' === type) cb();
-                return readStreamMock;
-            });
 
-            store.loadTestData()
-                .then(data => {
-                    expect(Array.from(data.inputData[0].getData().values)).toEqual(expected);
-                        done();
-                })
+            const row = input.join(',');
+            const dataString = [header, row].join('\n');
+
+            store.transformTestData(dataString);
+            expect(Array.from(store.testData.inputData[0].getData().values)).toEqual(expected);
         })
     });
 
