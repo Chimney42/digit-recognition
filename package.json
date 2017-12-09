@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "csv-parse": "^2.0.0",
     "deeplearn": "^0.3.12"
   },
   "devDependencies": {
-    "jasmine": "^2.8.0"
+    "jasmine": "^2.8.0",
+    "webpack": "^3.10.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "author": "",
   "license": "ISC"

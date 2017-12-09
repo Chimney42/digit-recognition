@@ -22,5 +22,10 @@ describe('The layer builder', () => {
     it('should add a reLU layer to net', () => {
         builder.createReLULayer(inputTensor);
         expect(builder.graph.relu).toHaveBeenCalledWith(inputTensor);
+    });
+
+    it('should add a convolutional layer to net', () => {
+        builder.createConvolutionalLayer(inputTensor);
+        expect(builder.graph.conv2d).toHaveBeenCalledWith();
     })
 });

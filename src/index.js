@@ -1,11 +1,10 @@
-const submissionDataPath = 'data/submission.csv';
-const testDataPath = 'data/test.csv';
 const trainDataPath = 'data/train.csv';
+const testDataPath = 'data/test.csv';
+const submissionDataPath = 'data/submission.csv';
 
-const fs = require('fs');
 const deeplearn = require('deeplearn');
-const Storage = require('./src/dataStore');
-const NetworkFactory = require('./src/network/factory');
+const Storage = require('./dataStore');
+const NetworkFactory = require('./network/factory');
 
 const config = {
     featureCount: 784,
