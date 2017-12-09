@@ -1,8 +1,11 @@
+const deeplearnMock = require('deeplearn');
 const Network = require('../src/network');
 describe('A Neural Network',() => {
     let network;
     beforeEach(() => {
-        network = new Network();
+        spyOn(deeplearnMock, 'NDArrayMathGPU');
+
+        network = new Network(deeplearnMock);
     });
     it('should be constructed with a graph', () => {
         expect(network.graph).toBeDefined();
@@ -19,15 +22,16 @@ describe('A Neural Network',() => {
         const targetData = [{size: labelCount}];
         network.init(labelCount);
         network.startSession();
+        network.startGraphRunner();
         const shuffleProvider = {
             getInputProviders: () => [{}, {}]
         };
-        spyOn(network.deeplearn, 'InCPUMemoryShuffledInputProviderBuilder').and.returnValue(shuffleProvider);
-        spyOn(network.session, 'train');
+        spyOn(network.deeplearn, 'InGPUMemoryShuffledInputProviderBuilder').and.returnValue(shuffleProvider);
+        spyOn(network.graphRunner, 'train');
         network.train(inputData, targetData, 6, 1, 0.0002);
 
-        expect(network.deeplearn.InCPUMemoryShuffledInputProviderBuilder).toHaveBeenCalledWith([inputData, targetData]);
-        expect(network.session.train).toHaveBeenCalled();
+        expect(network.deeplearn.InGPUMemoryShuffledInputProviderBuilder).toHaveBeenCalledWith([inputData, targetData]);
+        expect(network.graphRunner.train).toHaveBeenCalled();
     });
 
     it('should make prediction', (done) => {

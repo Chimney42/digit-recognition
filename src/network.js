@@ -1,7 +1,7 @@
 const LayerBuilder = require('./network/layerBuilder');
 class Network {
-    constructor() {
-        this.deeplearn = require('deeplearn');
+    constructor(deeplearnMock) {
+        this.deeplearn = deeplearnMock || require('deeplearn');
         this.graph = new this.deeplearn.Graph();
         this.math = new this.deeplearn.NDArrayMathGPU();
         this.layerBuilder = new LayerBuilder();
