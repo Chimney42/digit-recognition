@@ -75,14 +75,14 @@ class Network {
             {tensor: targetTensor, data: accuracyLabelProvider}
         ];
         if (!this.graphRunner) this.startGraphRunner(costCallback, metricCallback);
-        const EVAL_INTERVAL_MS = 10000;
+        const EVAL_INTERVAL_MS = 1000;
         const COST_INTERVAL_MS = 5000;
 
         console.log('start training');
 
         const optimizer = new this.deeplearn.SGDOptimizer(learningRate);
         //this.session.train(costTensor, trainFeeds, batchSize, optimizer, this.deeplearn.MetricReduction.MEAN);
-        this.graphRunner.train(costTensor, trainFeeds, batchSize, optimizer, batchCount, accuracyTensor, accuracyFeeds, this.deeplearn.MetricReduction.MEAN, EVAL_INTERVAL_MS, COST_INTERVAL_MS);
+        this.graphRunner.train(costTensor, trainFeeds, batchSize, optimizer, batchCount, accuracyTensor, accuracyFeeds, 1, this.deeplearn.MetricReduction.MEAN, EVAL_INTERVAL_MS, COST_INTERVAL_MS);
 
         // if (i % 10 == 0) {
         //     console.log(`training iteration ${i} of ${batchCount}`);

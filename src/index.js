@@ -69,8 +69,8 @@ const config = {
         size: 10
     }
 };
-const batchSize = 64;
-const batchCount = 1000;
+const batchSize = 100;
+const batchCount = 5000;
 let correctPredictions = 0;
 let predictionsMade = 0;
 
@@ -121,7 +121,7 @@ storage.initializeData()
         };
 
         network.train(trainingData, validationData, batchSize, batchCount, 0.1, costCallBack, metricCallBack);
-        return storage.loadTestData()
+        //return storage.loadTestData()
     })
     /*.then(testData => {
         let testIndex = 0;
