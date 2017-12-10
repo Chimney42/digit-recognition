@@ -84,10 +84,17 @@ const storage = new Storage();
 storage.trainingDataPath = trainDataPath;
 storage.testDataPath = testDataPath;
 let network;
-storage.loadTrainingData()
-    .then(trainingData => {
-        inputData = trainingData.inputData;
-        targetData = trainingData.targetData;
+storage.initializeData()
+    .then(() => {
+        const trainingData = {
+            input: storage.trainingData.inputData,
+            target: storage.trainingData.targetData
+        };
+
+        const validationData = {
+            input: storage.validationData.inputData,
+            target: storage.validationData.targetData
+        };
 
         const factory = new NetworkFactory();
         network = factory.createNetwork(config);
@@ -114,8 +121,8 @@ storage.loadTrainingData()
             updateChartData('accuracy', {x: batchesTrained, y: correctPredictions / predictionsMade});
         };
 
-        network.train(inputData, targetData, batchSize, batchCount, 0.1, costCallBack, metricCallBack);
-        //return storage.loadTestData()
+        network.train(trainingData, validationData, batchSize, batchCount, 0.1, costCallBack, metricCallBack);
+        return storage.loadTestData()
     })
     /*.then(testData => {
         let testIndex = 0;

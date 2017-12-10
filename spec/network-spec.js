@@ -20,6 +20,14 @@ describe('A Neural Network',() => {
         const labelCount = 10;
         const inputData = [{size: 5}];
         const targetData = [{size: labelCount}];
+        const trainingData = {
+            input: inputData,
+            target: targetData
+        };
+        const validationData = {
+            input: [],
+            target: []
+        };
         network.init(labelCount);
         network.startSession();
         network.startGraphRunner();
@@ -28,7 +36,7 @@ describe('A Neural Network',() => {
         };
         spyOn(network.deeplearn, 'InGPUMemoryShuffledInputProviderBuilder').and.returnValue(shuffleProvider);
         spyOn(network.graphRunner, 'train');
-        network.train(inputData, targetData, 6, 1, 0.0002);
+        network.train(trainingData, validationData, 6, 1, 0.0002);
 
         expect(network.deeplearn.InGPUMemoryShuffledInputProviderBuilder).toHaveBeenCalledWith([inputData, targetData]);
         expect(network.graphRunner.train).toHaveBeenCalled();

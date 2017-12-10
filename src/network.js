@@ -54,20 +54,21 @@ class Network {
         this.graphRunner = new this.deeplearn.GraphRunner(this.math, this.session, eventObserver);
     }
 
-    train(inputData, targetData, batchSize, batchCount, learningRate, costCallback, metricCallback) {
-        const targetTensor = this.graph.placeholder('target', [targetData[0].size]);
+    train(trainingData, validationData, batchSize, batchCount, learningRate, costCallback, metricCallback) {
+        const targetTensor = this.graph.placeholder('target', [trainingData.target[0].size]);
         const costTensor = this.graph.meanSquaredCost(this.lastLayer, targetTensor);
         const accuracyTensor = this.graph.argmaxEquals(this.lastLayer, targetTensor);
 
-        const shuffledInputProviderBuilder = new this.deeplearn.InGPUMemoryShuffledInputProviderBuilder([inputData, targetData]);
+        const shuffledInputProviderBuilder =
+            new this.deeplearn.InGPUMemoryShuffledInputProviderBuilder([trainingData.input, trainingData.target]);
         const [inputProvider, targetProvider] = shuffledInputProviderBuilder.getInputProviders();
         const trainFeeds = [
             {tensor: this.inputTensor, data: inputProvider},
             {tensor: targetTensor, data: targetProvider}
         ];
-        const accuracyShuffledInputProviderGenerator = new this.deeplearn.InGPUMemoryShuffledInputProviderBuilder([inputData, targetData]);
-        const [accuracyInputProvider, accuracyLabelProvider] =
-            accuracyShuffledInputProviderGenerator.getInputProviders();
+        const accuracyShuffledInputProviderGenerator =
+            new this.deeplearn.InGPUMemoryShuffledInputProviderBuilder([validationData.input, validationData.target]);
+        const [accuracyInputProvider, accuracyLabelProvider] = accuracyShuffledInputProviderGenerator.getInputProviders();
 
         const accuracyFeeds = [
             {tensor: this.inputTensor, data: accuracyInputProvider},

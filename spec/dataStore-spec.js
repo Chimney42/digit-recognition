@@ -20,51 +20,17 @@ describe('The dataStore', () => {
         store = new DataStore(requestMock, fetchMock);
     });
 
-    describe('loading training data', () => {
-        it('should load from file', (done) => {
-            spyOn(store, 'transformTrainingData');
-            const responsePayload = 'data';
-            const response = { text: () => Promise.resolve(responsePayload)};
-            fetchMock.and.returnValue(Promise.resolve(response));
+    it('should transform each row for training', () => {
+        const header = 'some header';
+        const target = 0;
+        const input = [0, 0, 255];
+        const expected = [0, 0, 1];
 
-            store.loadTrainingData()
-                .then(data => {
-                    expect(fetchMock).toHaveBeenCalled();
-                    expect(store.transformTrainingData).toHaveBeenCalledWith(responsePayload);
-                    trainingData.init = true;
-                    expect(data).toEqual(trainingData);
-                    done();
-                })
-                .catch(console.error)
-        });
+        const row = [target].concat(input);
 
-        it('should not load from file if already initiated', (done) => {
-            store.trainingData = trainingData;
-            store.trainingData.init = true;
-
-            store.loadTrainingData()
-                .then(data => {
-                    expect(fetchMock).not.toHaveBeenCalled();
-                    expect(data).toBe(trainingData);
-                    done();
-                })
-                .catch(console.error)
-        });
-
-
-        it('should transform each row', () => {
-            const header = 'some header';
-            const target = 0;
-            const input = [0, 0, 255];
-            const expected = [0, 0, 1];
-
-            const row = [target].concat(input).join(',');
-            const dataString = [header, row].join('\n');
-
-            store.transformTrainingData(dataString);
-            expect(Array.from(store.trainingData.inputData[0].getData().values)).toEqual(expected);
-            expect(store.trainingData.targetData[0]).toEqual(store.createVectorRepresentation(10, target));
-        })
+        store.transformTrainingData([row]);
+        expect(Array.from(store.trainingData.inputData[0].getData().values)).toEqual(expected);
+        expect(store.trainingData.targetData[0]).toEqual(store.createVectorRepresentation(10, target));
     });
 
     describe('loading test data', () => {
