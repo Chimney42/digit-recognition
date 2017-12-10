@@ -45,16 +45,16 @@ class Network {
         return fn;
     }
 
-    startGraphRunner() {
+    startGraphRunner(costCallback, metricCallback) {
         const eventObserver = {
-            avgCostCallback: (avgCost) => console.log(`average cost with ${this.graphRunner.getTotalBatchesTrained()} batches trained: ${avgCost.get()}`),
-            metricCallback: (metric) => console.log(`accuracy with ${this.graphRunner.getTotalBatchesTrained()} batches trained: ${metric.get()}`),
+            avgCostCallback: (avgCost) => costCallback(avgCost),
+            metricCallback: (metric) => metricCallback(metric),
         };
         if (!this.session) this.startSession();
         this.graphRunner = new this.deeplearn.GraphRunner(this.math, this.session, eventObserver);
     }
 
-    train(inputData, targetData, batchSize, batchCount, learningRate) {
+    train(inputData, targetData, batchSize, batchCount, learningRate, costCallback, metricCallback) {
         const targetTensor = this.graph.placeholder('target', [targetData[0].size]);
         const costTensor = this.graph.meanSquaredCost(this.lastLayer, targetTensor);
         const accuracyTensor = this.graph.argmaxEquals(this.lastLayer, targetTensor);
@@ -73,13 +73,13 @@ class Network {
             {tensor: this.inputTensor, data: accuracyInputProvider},
             {tensor: targetTensor, data: accuracyLabelProvider}
         ];
-        if (!this.graphRunner) this.startGraphRunner();
-        const EVAL_INTERVAL_MS = 5000;
-        const COST_INTERVAL_MS = 1000;
+        if (!this.graphRunner) this.startGraphRunner(costCallback, metricCallback);
+        const EVAL_INTERVAL_MS = 10000;
+        const COST_INTERVAL_MS = 5000;
 
         console.log('start training');
 
-        const optimizer = new this.deeplearn.MomentumOptimizer(learningRate, 0.1);
+        const optimizer = new this.deeplearn.SGDOptimizer(learningRate);
         //this.session.train(costTensor, trainFeeds, batchSize, optimizer, this.deeplearn.MetricReduction.MEAN);
         this.graphRunner.train(costTensor, trainFeeds, batchSize, optimizer, batchCount, accuracyTensor, accuracyFeeds, this.deeplearn.MetricReduction.MEAN, EVAL_INTERVAL_MS, COST_INTERVAL_MS);
 

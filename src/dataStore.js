@@ -3,7 +3,7 @@ const deeplearn = require('deeplearn');
 class DataStore {
     constructor(requestMock, fetchMock) {
         this.Request = requestMock || Request;
-        this.fetch = fetchMock || fetch;
+        this.fetch = fetchMock || fetch.bind(window);
 
         this.trainingDataPath = 'data/train.csv';
         this.testDataPath = 'data/test.csv';
