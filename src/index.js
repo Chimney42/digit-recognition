@@ -67,8 +67,7 @@ const config = {
         type: 'fully_connected',
         activation: 'sigmoid',
         size: 10
-    },
-    labelCount: 10
+    }
 };
 const batchSize = 64;
 const batchCount = 1000;
