@@ -10,7 +10,11 @@ describe('The network factory', () => {
                     activation : 'functionName',
                     size: 5
                 }],
-            labelCount: 10
+            predictionLayer: {
+                type: 'some type',
+                activation : 'anotherFunction',
+                size: 10
+            }
         };
         const networkMock = {
             init: jasmine.createSpy('init'),
@@ -26,9 +30,9 @@ describe('The network factory', () => {
         expect(network.addLayer.calls.allArgs()).toEqual([
             [config.layers[0]],
             [{
-                type: 'fully_connected',
-                activation: 'sigmoid',
-                size: config.labelCount
+                type: config.predictionLayer.type,
+                activation: config.predictionLayer.activation,
+                size: config.predictionLayer.size
             }]
         ])
     })

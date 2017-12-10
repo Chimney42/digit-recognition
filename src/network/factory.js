@@ -10,9 +10,9 @@ class NetworkFactory {
             network.addLayer(layerConfig)
         });
         network.addLayer({
-            type: 'fully_connected',
-            activation: 'sigmoid',
-            size: config.labelCount
+            type: config.predictionLayer.type,
+            activation: config.predictionLayer.activation,
+            size: config.predictionLayer.size
         });
         return network;
     }

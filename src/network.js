@@ -1,9 +1,9 @@
 const LayerBuilder = require('./network/layerBuilder');
 class Network {
-    constructor() {
-        this.deeplearn = require('deeplearn');
+    constructor(deeplearnMock) {
+        this.deeplearn = deeplearnMock || require('deeplearn');
         this.graph = new this.deeplearn.Graph();
-        this.math = new this.deeplearn.NDArrayMathCPU();
+        this.math = new this.deeplearn.NDArrayMathGPU();
         this.layerBuilder = new LayerBuilder();
     }
 
@@ -45,31 +45,48 @@ class Network {
         return fn;
     }
 
-    train(inputData, targetData, batchSize, batchCount, learningRate) {
-        const targetTensor = this.graph.placeholder('target', [targetData[0].size]);
+    startGraphRunner(costCallback, metricCallback) {
+        const eventObserver = {
+            avgCostCallback: (avgCost) => costCallback(avgCost),
+            metricCallback: (metric) => metricCallback(metric),
+        };
+        if (!this.session) this.startSession();
+        this.graphRunner = new this.deeplearn.GraphRunner(this.math, this.session, eventObserver);
+    }
+
+    train(trainingData, validationData, batchSize, batchCount, learningRate, costCallback, metricCallback) {
+        const targetTensor = this.graph.placeholder('target', [trainingData.target[0].size]);
         const costTensor = this.graph.meanSquaredCost(this.lastLayer, targetTensor);
         const accuracyTensor = this.graph.argmaxEquals(this.lastLayer, targetTensor);
 
-        const shuffledInputProviderBuilder = new this.deeplearn.InCPUMemoryShuffledInputProviderBuilder([inputData, targetData]);
+        const shuffledInputProviderBuilder =
+            new this.deeplearn.InGPUMemoryShuffledInputProviderBuilder([trainingData.input, trainingData.target]);
         const [inputProvider, targetProvider] = shuffledInputProviderBuilder.getInputProviders();
-
         const trainFeeds = [
             {tensor: this.inputTensor, data: inputProvider},
             {tensor: targetTensor, data: targetProvider}
         ];
+        const accuracyShuffledInputProviderGenerator =
+            new this.deeplearn.InGPUMemoryShuffledInputProviderBuilder([validationData.input, validationData.target]);
+        const [accuracyInputProvider, accuracyLabelProvider] = accuracyShuffledInputProviderGenerator.getInputProviders();
 
-        if (!this.session) this.startSession();
+        const accuracyFeeds = [
+            {tensor: this.inputTensor, data: accuracyInputProvider},
+            {tensor: targetTensor, data: accuracyLabelProvider}
+        ];
+        if (!this.graphRunner) this.startGraphRunner(costCallback, metricCallback);
+        const EVAL_INTERVAL_MS = 1000;
+        const COST_INTERVAL_MS = 5000;
 
         console.log('start training');
 
-        for (let i = 0; i < batchCount; i++) {
-            const optimizer = new this.deeplearn.MomentumOptimizer(learningRate, 0.1);
-            this.session.train(costTensor, trainFeeds, batchSize, optimizer, this.deeplearn.MetricReduction.MEAN);
+        const optimizer = new this.deeplearn.SGDOptimizer(learningRate);
+        //this.session.train(costTensor, trainFeeds, batchSize, optimizer, this.deeplearn.MetricReduction.MEAN);
+        this.graphRunner.train(costTensor, trainFeeds, batchSize, optimizer, batchCount, accuracyTensor, accuracyFeeds, 1, this.deeplearn.MetricReduction.MEAN, EVAL_INTERVAL_MS, COST_INTERVAL_MS);
 
-            if (i % 10 == 0) {
-                console.log(`training iteration ${i} of ${batchCount}`);
-            }
-        }
+        // if (i % 10 == 0) {
+        //     console.log(`training iteration ${i} of ${batchCount}`);
+        // }
     }
 
     predict(inputRow) {

@@ -15,12 +15,13 @@ describe('The layer builder', () => {
     });
 
     it('should add a fully connected layer to net', () => {
-        builder.createFullyConnectedLayer(inputTensor, size, activationFunction);
-        expect(builder.graph.layers.dense).toHaveBeenCalledWith('fcl', inputTensor, size, activationFunction, true);
+        const index = 3;
+        builder.createFullyConnectedLayer(inputTensor, size, activationFunction, index);
+        expect(builder.graph.layers.dense).toHaveBeenCalledWith('fcl-'+index, inputTensor, size, activationFunction, true);
     });
 
     it('should add a reLU layer to net', () => {
         builder.createReLULayer(inputTensor);
         expect(builder.graph.relu).toHaveBeenCalledWith(inputTensor);
-    })
+    });
 });
